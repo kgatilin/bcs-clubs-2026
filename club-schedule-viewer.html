@@ -112,6 +112,7 @@
             width: 100%;
             border-collapse: collapse;
             min-width: 900px;
+            table-layout: fixed;
         }
 
         .schedule-table th {
@@ -123,6 +124,10 @@
             top: 0;
             z-index: 10;
         }
+
+        /* Fixed column widths */
+        .schedule-table col.time-col { width: 140px; }
+        .schedule-table col.day-col { width: 240px; }
 
         .schedule-table td {
             padding: 8px;
@@ -2490,7 +2495,14 @@
 
             const visibleDays = selectedDay ? [selectedDay] : days;
 
-            let html = '<thead><tr><th>Time</th>';
+            let html = '';
+            // Fixed column widths via colgroup
+            if (selectedDay) {
+                html += '<colgroup><col class="time-col"><col class="day-col"></colgroup>';
+            } else {
+                html += '<colgroup><col class="time-col">' + '<col class="day-col">'.repeat(days.length) + '</colgroup>';
+            }
+            html += '<thead><tr><th>Time</th>';
             visibleDays.forEach(day => {
                 html += `<th class="day-header" data-day="${day}">${day}</th>`;
             });
