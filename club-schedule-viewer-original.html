@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCS Club Schedule Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .grade-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .grade-filter label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .grade-filter select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .grade-filter select:hover {
+            border-color: #764ba2;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .view-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #e0e0e0;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .schedule-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .schedule-table td {
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        .time-slot {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .club-item {
+            background: white;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .club-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .club-item.dance {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        }
+
+        .club-item.music {
+            background: linear-gradient(135deg, #a8e6cf 0%, #81d4bb 100%);
+        }
+
+        .club-item.sports {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+
+        .club-item.academic {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+
+        .club-item.arts {
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+        }
+
+        .club-item.language {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        }
+
+        .club-item.games {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .club-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+        }
+
+        .club-info {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .modal-body strong {
+            color: #667eea;
+        }
+
+        .list-view {
+            display: none;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        .club-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .club-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .club-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .club-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .club-card .details {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .club-card .details p {
+            margin-bottom: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats span {
+            margin: 0 15px;
+            font-weight: 500;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Berlin Cosmopolitan School</h1>
+            <div class="subtitle">Extracurricular Clubs Schedule 2025-2026</div>
+        </div>
+
+        <div class="stats" id="stats">
+            <span>Total Clubs: <strong id="totalClubs">0</strong></span>
+            <span>Filtered Clubs: <strong id="filteredClubs">0</strong></span>
+        </div>
+
+        <div class="controls">
+            <div class="grade-filter">
+                <label for="gradeSelect">Filter by Grade:</label>
+                <select id="gradeSelect">
+                    <option value="all">All Grades</option>
+                    <option value="1">Grade 1</option>
+                    <option value="2">Grade 2</option>
+                    <option value="3">Grade 3</option>
+                    <option value="4">Grade 4</option>
+                    <option value="5">Grade 5</option>
+                    <option value="6">Grade 6</option>
+                    <option value="7">Grade 7</option>
+                    <option value="8">Grade 8</option>
+                    <option value="9">Grade 9</option>
+                    <option value="10">Grade 10</option>
+                    <option value="11">Grade 11</option>
+                    <option value="12">Grade 12</option>
+                </select>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="toggleView('schedule')">📅 Schedule View</button>
+                <button class="view-btn" onclick="toggleView('list')">📋 List View</button>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);"></div>
+                <span>Dance</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #a8e6cf 0%, #81d4bb 100%);"></div>
+                <span>Music</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);"></div>
+                <span>Sports</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);"></div>
+                <span>Academic</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);"></div>
+                <span>Arts</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);"></div>
+                <span>Language</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                <span>Games</span>
+            </div>
+        </div>
+
+        <div class="schedule-container" id="scheduleView">
+            <table class="schedule-table" id="scheduleTable">
+                <!-- Schedule will be generated here -->
+            </table>
+        </div>
+
+        <div class="list-view" id="listView">
+            <div class="club-list" id="clubList">
+                <!-- Club list will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="clubModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Club Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Club details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Combined club data from all documents
+        const clubsData = [
+            // Dance Clubs
+            {
+                name: "Ballet 1",
+                category: "dance",
+                day: "Monday",
+                time: "15:15-16:30",
+                grades: [1, 2],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "The methodology of the ballet classes is structured to suit the age and anatomy of the children. Students learn classical ballet technique following the Vaganova method."
+            },
+            {
+                name: "Ballet 2",
+                category: "dance",
+                day: "Friday",
+                time: "15:15-16:30",
+                grades: [3, 4, 5],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Continuing ballet education for intermediate students, building on fundamental techniques."
+            },
+            {
+                name: "Ballet 3",
+                category: "dance",
+                day: "Friday",
+                time: "16:30-17:30",
+                grades: [5, 6, 7, 8],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Advanced ballet training including pointe work preparation."
+            },
+            {
+                name: "Ballet 4 Performance Class",
+                category: "dance",
+                day: "Monday",
+                time: "16:30-18:00",
+                grades: [8, 9, 10, 11, 12],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Performance-focused ballet class for advanced students, including preparation for shows and competitions."
+            },
+            {
+                name: "Hip Hop & Streetdance 1",
+                category: "dance",
+                day: "Tuesday",
+                time: "15:15-16:45",
+                grades: [3, 4],
+                instructor: "Jan Kriegelsteiner",
+                room: "Dance Hall (204)",
+                description: "Introduction to hip hop and street dance styles, focusing on rhythm, coordination, and fun movement."
+            },
+            {
+                name: "Hip Hop & Streetdance 2",
+                category: "dance",
+                day: "Tuesday",
+                time: "16:45-18:15",
+                grades: [5, 6],
+                instructor: "Jan Kriegelsteiner",
+                room: "Dance Hall (204)",
+                description: "Intermediate hip hop and street dance, developing style and technique."
+            },
+            {
+                name: "Hip Hop & Streetdance 3",
+                category: "dance",
+                day: "Thursday",
+                time: "16:15-17:45",
+                grades: [7, 8, 9],
+                instructor: "Jan Kriegelsteiner",
+                room: "Dance Hall (204)",
+                description: "Advanced hip hop and street dance with complex choreographies."
+            },
+            {
+                name: "Commercial Dance",
+                category: "dance",
+                day: "Thursday",
+                time: "17:45-18:45",
+                grades: [9, 10, 11, 12],
+                instructor: "Jan Kriegelsteiner",
+                room: "Dance Hall (204)",
+                description: "Commercial dance combining urban dance styles with jazz elements for performance and self-expression."
+            },
+            {
+                name: "Tap Dance 1 Beginners",
+                category: "dance",
+                day: "Wednesday",
+                time: "08:00-08:45",
+                grades: [3, 4, 5],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Introduction to American Tap Dance, learning basic rhythms and footwork."
+            },
+            {
+                name: "Tap Dance 2",
+                category: "dance",
+                day: "Friday",
+                time: "08:00-08:45",
+                grades: [5, 6, 7],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Intermediate tap dance developing rhythm and technique."
+            },
+            {
+                name: "Tap Dance 3",
+                category: "dance",
+                day: "Tuesday",
+                time: "08:00-08:45",
+                grades: [8, 9, 10],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Advanced tap dance with complex rhythms and performance preparation."
+            },
+            {
+                name: "Tap Dance 4",
+                category: "dance",
+                day: "Thursday",
+                time: "08:00-08:45",
+                grades: [8, 9, 10, 11, 12],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Performance-level tap dance for experienced dancers."
+            },
+            {
+                name: "Junior Performance Kids",
+                category: "dance",
+                day: "Wednesday",
+                time: "15:15-16:30",
+                grades: [3, 4, 5],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Performance preparation class combining various dance styles for younger students."
+            },
+            {
+                name: "Junior Performance Class",
+                category: "dance",
+                day: "Wednesday",
+                time: "16:30-18:00",
+                grades: [5, 6, 7, 8],
+                instructor: "Anita S. Kreft",
+                room: "Dance Hall (204)",
+                description: "Performance class for intermediate students preparing for shows and competitions."
+            },
+            {
+                name: "Dance & Stretching",
+                category: "dance",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4],
+                instructor: "Diana Schumann",
+                room: "Dance Hall (204)",
+                description: "Focus on flexibility, rhythm, and basic acrobatic movements combined with dance."
+            },
+            {
+                name: "Zumba 1",
+                category: "dance",
+                day: "Friday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Elena Sachse",
+                room: "Assembly Hall",
+                description: "Fun, energetic Zumba for young children combining music and movement."
+            },
+            {
+                name: "Zumba 2",
+                category: "dance",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [3, 4],
+                instructor: "Elena Sachse",
+                room: "Assembly Hall",
+                description: "Zumba dance fitness for elementary students."
+            },
+            {
+                name: "Zumba 3 / Latin Fusion",
+                category: "dance",
+                day: "Friday",
+                time: "17:15-18:15",
+                grades: [5, 6, 7, 8],
+                instructor: "Elena Sachse",
+                room: "Assembly Hall",
+                description: "Latin Fusion combining Latin dance rhythms with elements from hip hop and commercial dance."
+            },
+            
+            // Music Clubs
+            {
+                name: "Rock Band 1",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Joey Ryan",
+                room: "Band Room 107",
+                description: "Rock band with live concerts, weekly rehearsals, and the chance to write and record original songs."
+            },
+            {
+                name: "Rock Band 2",
+                category: "music",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10],
+                instructor: "Ido Buckelmann",
+                room: "Band Room 107",
+                description: "Rock band focusing on performance and songwriting."
+            },
+            {
+                name: "Rock Band 3",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [5, 6, 7, 8],
+                instructor: "Sascha Pavlovic",
+                room: "Band Room 107",
+                description: "Rock band for younger students learning ensemble playing."
+            },
+            {
+                name: "Jazz Band",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Colin Lloyd",
+                room: "Room 207",
+                description: "Advanced Jazz band including rhythm section plus winds/brass instruments."
+            },
+            {
+                name: "Orchestra Arco",
+                category: "music",
+                day: "Tuesday",
+                time: "08:00-08:45",
+                grades: [3],
+                instructor: "Ben Salsbury",
+                room: "Aula 303",
+                description: "Beginning string orchestra for students learning violin, viola, cello, or bass."
+            },
+            {
+                name: "Orchestra Brio",
+                category: "music",
+                day: "Friday",
+                time: "08:00-08:45",
+                grades: [3, 4, 5],
+                instructor: "Bridget Kinneary",
+                room: "Aula 303",
+                description: "String orchestra for intermediate players."
+            },
+            {
+                name: "BCS Symphoria",
+                category: "music",
+                day: "Tuesday",
+                time: "08:00-08:45",
+                grades: [5, 6, 7, 8],
+                instructor: "Bridget Kinneary",
+                room: "Aula 303",
+                description: "Pre-advanced string orchestra practicing diverse repertoire."
+            },
+            {
+                name: "Cosmo Philharmonic",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [8, 9, 10, 11, 12],
+                instructor: "Ben Salsbury",
+                room: "Aula 303",
+                description: "BCS's premier string orchestra for advanced student musicians."
+            },
+            {
+                name: "BCS Concert Band",
+                category: "music",
+                day: "Monday",
+                time: "08:00-08:45",
+                grades: [7, 8, 9, 10],
+                instructor: "Colin Lloyd",
+                room: "Room 208/109",
+                description: "Wind and brass ensemble focusing on various musical styles."
+            },
+            {
+                name: "Canta Cosmo Primary Choir",
+                category: "music",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4, 5],
+                instructor: "Alexander Pavlovic",
+                room: "TBD",
+                description: "Children's choir singing in multiple languages preparing for 6K United project."
+            },
+            {
+                name: "BCS Community Choir",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Doug Weber",
+                room: "Cafeteria 109",
+                description: "Community choir open to students, parents, and staff."
+            },
+            {
+                name: "Beginner Guitar",
+                category: "music",
+                day: "Wednesday",
+                time: "08:00-08:45",
+                grades: [6, 7, 8, 9, 10],
+                instructor: "Joey Ryan",
+                room: "Room 207",
+                description: "Introduction to guitar for beginners and preparation for guitar class."
+            },
+            {
+                name: "Intermediate Guitar",
+                category: "music",
+                day: "Monday",
+                time: "08:00-08:45",
+                grades: [6, 7, 8, 9, 10],
+                instructor: "Joey Ryan",
+                room: "Room 207",
+                description: "Continuing guitar education for students with basic skills."
+            },
+            {
+                name: "Advanced Guitar Ensemble",
+                category: "music",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Joey Ryan",
+                room: "Room 208",
+                description: "Advanced guitar ensemble focusing on performance and individual style."
+            },
+            {
+                name: "Beginner Brass and Woodwind",
+                category: "music",
+                day: "Wednesday",
+                time: "08:00-08:45",
+                grades: [5, 6, 7, 8],
+                instructor: "Colin Lloyd",
+                room: "Room 208",
+                description: "Introduction to brass and woodwind instruments."
+            },
+            {
+                name: "Music Theory",
+                category: "music",
+                day: "Tuesday",
+                time: "08:00-08:45",
+                grades: [7, 8, 9, 10],
+                instructor: "Colin Lloyd",
+                room: "Cafeteria 109",
+                description: "Music theory tutorial supporting students in understanding musical concepts."
+            },
+            {
+                name: "Violin 1",
+                category: "music",
+                day: "Friday",
+                time: "08:00-08:45",
+                grades: [1, 2],
+                instructor: "Ben Salsbury",
+                room: "Aula 303",
+                description: "Beginning violin instruction for young students."
+            },
+            {
+                name: "Violin 2",
+                category: "music",
+                day: "Friday",
+                time: "08:00-08:45",
+                grades: [3, 4, 5],
+                instructor: "Bridget Kinneary",
+                room: "Room 302",
+                description: "Continuing violin instruction for elementary students."
+            },
+            {
+                name: "Recorder",
+                category: "music",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4],
+                instructor: "Sascha Pavlovic",
+                room: "TBD",
+                description: "Recorder instruction for young students."
+            },
+            {
+                name: "Ukulele",
+                category: "music",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Alexander Pavlovic",
+                room: "Room 208",
+                description: "Ukulele club for all experience levels, learning chords and strumming patterns."
+            },
+            {
+                name: "Flauto Grande",
+                category: "music",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [3, 4],
+                instructor: "Alexander Pavlovic",
+                room: "Room 208",
+                description: "Advanced recorder ensemble for experienced players."
+            },
+            {
+                name: "Boom & Beat Club",
+                category: "music",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5],
+                instructor: "Chrysanthi Gerogiannaki",
+                room: "Cafeteria 102",
+                description: "Discover the power of rhythm through percussion and idiophones."
+            },
+            
+            // Sports Clubs
+            {
+                name: "Basketball Primary 1",
+                category: "sports",
+                day: "Wednesday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Oumar Sylla",
+                room: "Gymnasium",
+                description: "Introduction to basketball skills and teamwork for young students."
+            },
+            {
+                name: "Basketball Primary 2",
+                category: "sports",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4],
+                instructor: "Oumar Sylla",
+                room: "Gymnasium",
+                description: "Basketball skills development and intramural games."
+            },
+            {
+                name: "Basketball Girls",
+                category: "sports",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [5, 6, 7, 8, 9, 10, 11, 12],
+                instructor: "Sven Wehrmeyer",
+                room: "F.M. Halle",
+                description: "Girls basketball team focusing on skills and competition."
+            },
+            {
+                name: "Soccer (Boys/Girls)",
+                category: "sports",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [2, 3, 4, 5, 6],
+                instructor: "SV Empor Berlin",
+                room: "Mauerpark",
+                description: "Soccer club for all skill levels in a fun, safe environment."
+            },
+            {
+                name: "American Flag Football",
+                category: "sports",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Niklas Müller",
+                room: "F.M. Halle",
+                description: "Non-contact flag football teaching teamwork and football basics."
+            },
+            {
+                name: "Judo 1",
+                category: "sports",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3],
+                instructor: "Niklas Seidenstücker",
+                room: "F.M. Halle",
+                description: "Introduction to judo emphasizing respect, discipline, and physical coordination."
+            },
+            {
+                name: "Judo 2",
+                category: "sports",
+                day: "Tuesday",
+                time: "16:15-17:15",
+                grades: [4, 5, 6],
+                instructor: "External support",
+                room: "F.M. Halle",
+                description: "Continuing judo training for intermediate students."
+            },
+            {
+                name: "Karate Secondary",
+                category: "sports",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9, 10],
+                instructor: "Domenico Schneider",
+                room: "TBD",
+                description: "Modern sport karate focusing on competition and self-defense."
+            },
+            {
+                name: "Parkour Primary",
+                category: "sports",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Enrico Zecchini",
+                room: "Outdoor",
+                description: "Introduction to parkour movements and obstacle navigation."
+            },
+            {
+                name: "Parkour Secondary",
+                category: "sports",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Enrico Zecchini",
+                room: "Movement Room/Outdoor",
+                description: "Advanced parkour training at various Berlin locations."
+            },
+            {
+                name: "Skating Primary",
+                category: "sports",
+                day: "Friday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Enrico Zecchini",
+                room: "Cafeteria 109",
+                description: "Learn skateboarding, roller-skating, or scooter basics."
+            },
+            {
+                name: "Skating Secondary",
+                category: "sports",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Enrico Zecchini",
+                room: "Cafeteria 109",
+                description: "Advanced skating skills and tricks."
+            },
+            {
+                name: "Taiji Quan",
+                category: "sports",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [5, 6, 7, 8, 9, 10],
+                instructor: "Mark Baxter",
+                room: "TBD",
+                description: "Chinese martial art with slow movements for balance and relaxation."
+            },
+            {
+                name: "Bouldering",
+                category: "sports",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Christopher Purdham",
+                room: "Movement Room",
+                description: "Indoor climbing focusing on problem-solving and strength."
+            },
+            
+            // Academic Clubs
+            {
+                name: "Coding Primary 1",
+                category: "academic",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Andrew Igras",
+                room: "Room 103",
+                description: "Introduction to coding using Scratch and Hour of Code challenges."
+            },
+            {
+                name: "Coding Secondary",
+                category: "academic",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Andrew Igras",
+                room: "Room 103",
+                description: "Python programming for creating original programs."
+            },
+            {
+                name: "Science Club",
+                category: "academic",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [5, 6],
+                instructor: "Maria Samalikova",
+                room: "TBD",
+                description: "Hands-on experiments in physics, chemistry, and biology."
+            },
+            {
+                name: "Math Club Primary",
+                category: "academic",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Chrysanthi Gerogiannaki",
+                room: "Room 102",
+                description: "Fun math games and puzzles to develop problem-solving skills."
+            },
+            {
+                name: "Math Club Secondary",
+                category: "academic",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Chrysanthi Gerogiannaki",
+                room: "Room 102",
+                description: "Advanced mathematical concepts and competition preparation."
+            },
+            {
+                name: "Robotics Elementary",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [4, 5, 6],
+                instructor: "Claudia Richter",
+                room: "Mü7",
+                description: "VEX Robotics IQ for elementary students."
+            },
+            {
+                name: "Robotics V5",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Claudia Richter",
+                room: "Mü7",
+                description: "VEX Robotics V5 for secondary students and competitions."
+            },
+            {
+                name: "BCS News Broadcasting",
+                category: "academic",
+                day: "Tuesday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10],
+                instructor: "Forest Holmes",
+                room: "Room 301",
+                description: "School newspaper, video production, and journalism."
+            },
+            {
+                name: "Model UN / Debating",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [8, 9, 10, 11, 12],
+                instructor: "Marcel Thach",
+                room: "Room 301",
+                description: "Model United Nations conferences and debate skills."
+            },
+            {
+                name: "DIY Electronics Maker",
+                category: "academic",
+                day: "Thursday",
+                time: "16:15-18:00",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Tom Oates",
+                room: "Mü7",
+                description: "Build electronic devices like LED lights, robots, and speakers."
+            },
+            {
+                name: "Fun Facts",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10],
+                instructor: "Forest Holmes",
+                room: "Room 301",
+                description: "Trivia, quiz challenges, and Jeopardy-style competitions."
+            },
+            {
+                name: "Creative Writing Primary",
+                category: "academic",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Dr. Judith Innerhofer",
+                room: "Room 301",
+                description: "Explore poetry, short stories, and creative expression."
+            },
+            {
+                name: "Creative Writing Secondary",
+                category: "academic",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Dr. Judith Innerhofer",
+                room: "TBD",
+                description: "Advanced creative writing workshop."
+            },
+            {
+                name: "Journalism Primary",
+                category: "academic",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Dr. Judith Innerhofer",
+                room: "Room 301",
+                description: "Introduction to journalism and communication skills."
+            },
+            {
+                name: "Journalism Secondary",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Dr. Judith Innerhofer",
+                room: "Room 302",
+                description: "Advanced journalism, interviewing, and reporting."
+            },
+            {
+                name: "Storytelling Primary",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5],
+                instructor: "Dr. Judith Innerhofer",
+                room: "Room 302",
+                description: "Story development and presentation skills."
+            },
+            {
+                name: "Storytelling Secondary",
+                category: "academic",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Dr. Judith Innerhofer",
+                room: "Room 302",
+                description: "Advanced storytelling and narrative development."
+            },
+            
+            // Arts & Crafts Clubs
+            {
+                name: "Clay Modelling 1",
+                category: "arts",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Enrico Zecchini",
+                room: "Rük 10",
+                description: "Introduction to clay modeling techniques and ceramic art."
+            },
+            {
+                name: "Clay Modelling 2",
+                category: "arts",
+                day: "Wednesday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Clay modeling and terracotta art using the kiln."
+            },
+            {
+                name: "Clay Modelling 3",
+                category: "arts",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Intermediate clay modeling with independent projects."
+            },
+            {
+                name: "Clay Modelling 4",
+                category: "arts",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Enrico Zecchini",
+                room: "Rük 10",
+                description: "Clay modeling basics for young artists."
+            },
+            {
+                name: "Clay Modelling 5",
+                category: "arts",
+                day: "Thursday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Advanced clay techniques and ceramic art."
+            },
+            {
+                name: "Clay Modelling 6",
+                category: "arts",
+                day: "Thursday",
+                time: "17:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Advanced clay modeling for secondary students."
+            },
+            {
+                name: "Clay Modelling Secondary",
+                category: "arts",
+                day: "Tuesday",
+                time: "17:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Advanced ceramic and terracotta art."
+            },
+            {
+                name: "Digital Art 1",
+                category: "arts",
+                day: "Friday",
+                time: "15:15-16:15",
+                grades: [3, 4],
+                instructor: "Dominik Hislop",
+                room: "Room 103",
+                description: "Digital image editing, drawing, and creative graphics."
+            },
+            {
+                name: "Digital Art 2",
+                category: "arts",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [5, 6],
+                instructor: "Dominik Hislop",
+                room: "Room 103",
+                description: "Advanced digital art and animation."
+            },
+            {
+                name: "Stop Motion Animation",
+                category: "arts",
+                day: "Monday",
+                time: "15:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Dominik Hislop",
+                room: "Art Room 108",
+                description: "Create stop motion animations using 2D and 3D techniques."
+            },
+            {
+                name: "Photography Primary",
+                category: "arts",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [3, 4],
+                instructor: "Aaron Holloway",
+                room: "TBD",
+                description: "Creative photography skills using DSLR cameras."
+            },
+            {
+                name: "Photography Secondary",
+                category: "arts",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [5, 6, 7, 8, 9, 10, 11, 12],
+                instructor: "Aaron Holloway",
+                room: "TBD",
+                description: "Advanced photography techniques and photo art theory."
+            },
+            {
+                name: "Creative Movie Maker",
+                category: "arts",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Erika Polgar",
+                room: "Aula 303",
+                description: "Produce short films in various genres and techniques."
+            },
+            {
+                name: "Short Films and Videos",
+                category: "arts",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9],
+                instructor: "Trevor Wood",
+                room: "Mülackstr. 7",
+                description: "Videography, filmmaking, and visual storytelling."
+            },
+            {
+                name: "Manga & Comics",
+                category: "arts",
+                day: "Wednesday",
+                time: "17:15-18:00",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Enrico Zecchini",
+                room: "Room 108",
+                description: "Drawing, coloring, and inking techniques for manga and comics."
+            },
+            {
+                name: "Costume Design",
+                category: "arts",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Marina Cabral",
+                room: "Rük 10",
+                description: "Design and create costume pieces using various materials."
+            },
+            {
+                name: "Art Prep for Abi/IB",
+                category: "arts",
+                day: "Thursday",
+                time: "17:15-18:00",
+                grades: [9, 10],
+                instructor: "Eunsun Ko",
+                room: "Rük 10",
+                description: "Preparation for Visual Arts IB DP or Abitur Bildende Kunst."
+            },
+            {
+                name: "Woodworking 1",
+                category: "arts",
+                day: "Tuesday",
+                time: "15:15-16:15",
+                grades: [1],
+                instructor: "Brendan Dougherty",
+                room: "Woodworking Shop",
+                description: "Introduction to woodworking, creating toys and puzzles."
+            },
+            {
+                name: "Woodworking 2",
+                category: "arts",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [2, 3],
+                instructor: "Brendan Dougherty",
+                room: "Woodworking Shop",
+                description: "Woodworking projects for elementary students."
+            },
+            {
+                name: "Woodworking 3",
+                category: "arts",
+                day: "Friday",
+                time: "15:15-16:15",
+                grades: [4, 5],
+                instructor: "Brendan Dougherty",
+                room: "Woodworking Shop",
+                description: "Advanced woodworking projects and techniques."
+            },
+            
+            // Language Clubs
+            {
+                name: "Doppeldeutsch Morning",
+                category: "language",
+                day: "Monday",
+                time: "08:00-08:45",
+                grades: [1, 2, 3, 4, 5, 6],
+                instructor: "German teacher",
+                room: "TBD",
+                description: "German language support for new arrivals with little German knowledge."
+            },
+            {
+                name: "Doppeldeutsch Afternoon",
+                category: "language",
+                day: "Thursday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5, 6],
+                instructor: "German teacher",
+                room: "TBD",
+                description: "Specialized German support for students with dyslexia."
+            },
+            {
+                name: "French Primary",
+                category: "language",
+                day: "Wednesday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4, 5],
+                instructor: "Melinée Benamou",
+                room: "Room 101",
+                description: "French language through games, stories, and songs."
+            },
+            {
+                name: "French Secondary",
+                category: "language",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Melinée Benamou",
+                room: "Room 101",
+                description: "Advanced French vocabulary and conversation."
+            },
+            {
+                name: "French DELF",
+                category: "language",
+                day: "Friday",
+                time: "11:15-12:00",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Chloe Bion",
+                room: "Room 406",
+                description: "Preparation for official French language diploma DELF."
+            },
+            {
+                name: "Spanish Primary",
+                category: "language",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [2, 3, 4],
+                instructor: "Priscilla Milasich",
+                room: "Room 101",
+                description: "Introduction to Spanish language and culture."
+            },
+            {
+                name: "Spanish Secondary",
+                category: "language",
+                day: "Monday",
+                time: "16:15-17:15",
+                grades: [5, 6],
+                instructor: "Javier Hoballah Lorenzo",
+                room: "Room 101",
+                description: "Intermediate Spanish language skills."
+            },
+            {
+                name: "Spanish DELE",
+                category: "language",
+                day: "TBD",
+                time: "TBD",
+                grades: [6, 7, 8, 9, 10, 11, 12],
+                instructor: "Mario Sánchez",
+                room: "TBD",
+                description: "Preparation for Spanish language diploma DELE."
+            },
+            {
+                name: "Mandarin Chinese Primary",
+                category: "language",
+                day: "Friday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4],
+                instructor: "Ying Kober-Zhang",
+                room: "Room 101",
+                description: "Chinese language and culture through songs, dance, and cooking."
+            },
+            {
+                name: "Mandarin Chinese Elementary",
+                category: "language",
+                day: "Friday",
+                time: "16:15-17:15",
+                grades: [5, 6],
+                instructor: "Ying Kober-Zhang",
+                room: "Room 101",
+                description: "Continuing Chinese language education."
+            },
+            {
+                name: "Mandarin Chinese Secondary",
+                category: "language",
+                day: "Friday",
+                time: "17:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Ying Kober-Zhang",
+                room: "Room 101",
+                description: "Advanced Chinese language and culture."
+            },
+            {
+                name: "Russian Primary",
+                category: "language",
+                day: "Wednesday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4],
+                instructor: "Dr. Julia Salacinska-Rewiakin",
+                room: "Room 202",
+                description: "Russian language for beginners and heritage speakers."
+            },
+            {
+                name: "Russian Elementary",
+                category: "language",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [5, 6],
+                instructor: "Dr. Julia Salacinska-Rewiakin",
+                room: "Room 202",
+                description: "Intermediate Russian language skills."
+            },
+            {
+                name: "Russian Secondary",
+                category: "language",
+                day: "Monday",
+                time: "17:15-18:00",
+                grades: [7, 8, 9, 10, 11, 12],
+                instructor: "Dr. Julia Salacinska-Rewiakin",
+                room: "Room 202",
+                description: "Advanced Russian language and literature."
+            },
+            {
+                name: "Japanese Primary",
+                category: "language",
+                day: "Tuesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Yukitake Miwa",
+                room: "Room 302",
+                description: "Introduction to Japanese language and culture."
+            },
+            {
+                name: "Japanese Secondary",
+                category: "language",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [7, 8, 9, 10],
+                instructor: "Yukitake Miwa",
+                room: "Room 302",
+                description: "Advanced Japanese language and cultural activities."
+            },
+            
+            // Games & Society Clubs
+            {
+                name: "Chess 1",
+                category: "games",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [1, 2],
+                instructor: "Brian Mitchell",
+                room: "Chess room F.M. Halle",
+                description: "Learn chess strategies and play friendly matches."
+            },
+            {
+                name: "Chess 2",
+                category: "games",
+                day: "Wednesday",
+                time: "16:15-17:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Brian Mitchell",
+                room: "Chess room F.M. Halle",
+                description: "Chess club with mini-tournaments and skill development."
+            },
+            {
+                name: "Agents of Deception",
+                category: "games",
+                day: "Wednesday",
+                time: "15:15-17:15",
+                grades: [3, 4, 5],
+                instructor: "Hamza Önal",
+                room: "Nature Campus Room",
+                description: "Mystery, strategy, and problem-solving games."
+            },
+            {
+                name: "Theater",
+                category: "games",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5],
+                instructor: "Maxi Geithner",
+                room: "TBD",
+                description: "Develop intercultural performances through body language and voice."
+            },
+            {
+                name: "Cooking 1",
+                category: "games",
+                day: "Tuesday",
+                time: "15:15-17:15",
+                grades: [1, 2],
+                instructor: "Ollie Harris",
+                room: "Cafeteria",
+                description: "Explore world cultures through cooking and baking."
+            },
+            {
+                name: "Cooking 2",
+                category: "games",
+                day: "Wednesday",
+                time: "15:15-17:15",
+                grades: [3, 4],
+                instructor: "Ollie Harris",
+                room: "Cafeteria 102",
+                description: "Cooking adventures exploring different cuisines."
+            },
+            {
+                name: "Cooking 3",
+                category: "games",
+                day: "Thursday",
+                time: "15:15-17:15",
+                grades: [5, 6],
+                instructor: "Kitchen Staff",
+                room: "Cafeteria 102",
+                description: "Advanced cooking and baking techniques."
+            },
+            {
+                name: "Yoga Beginners",
+                category: "games",
+                day: "Monday",
+                time: "15:15-16:15",
+                grades: [1, 2, 3, 4, 5],
+                instructor: "Marina Cabral",
+                room: "Cafeteria 102",
+                description: "Basic yoga postures and breathwork for relaxation."
+            },
+            {
+                name: "Guided Relaxation",
+                category: "games",
+                day: "Wednesday",
+                time: "15:15-16:15",
+                grades: [3, 4, 5, 6],
+                instructor: "Valentini Kondyli",
+                room: "TBD",
+                description: "Relaxation techniques for body and mind."
+            }
+        ];
+
+        let currentView = 'schedule';
+        let selectedGrade = 'all';
+
+        function initializeSchedule() {
+            updateStats();
+            renderSchedule();
+            renderListView();
+        }
+
+        function updateStats() {
+            const totalClubs = clubsData.length;
+            const filteredClubs = getFilteredClubs().length;
+            document.getElementById('totalClubs').textContent = totalClubs;
+            document.getElementById('filteredClubs').textContent = filteredClubs;
+        }
+
+        function getFilteredClubs() {
+            if (selectedGrade === 'all') {
+                return clubsData;
+            }
+            const gradeNum = parseInt(selectedGrade);
+            return clubsData.filter(club => club.grades.includes(gradeNum));
+        }
+
+        function renderSchedule() {
+            const filteredClubs = getFilteredClubs();
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const timeSlots = [
+                '08:00-08:45',
+                '11:15-12:00',
+                '15:15-16:15',
+                '16:15-17:15',
+                '17:15-18:00',
+                '16:15-18:00',
+                '15:15-17:15',
+                '16:30-17:30',
+                '15:15-16:30',
+                '16:30-18:00',
+                '16:45-18:15',
+                '17:45-18:45'
+            ];
+
+            let html = '<thead><tr><th>Time</th>';
+            days.forEach(day => {
+                html += `<th>${day}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            // Get unique time slots from filtered clubs
+            const uniqueTimeSlots = [...new Set(filteredClubs.map(club => club.time))].sort();
+
+            uniqueTimeSlots.forEach(time => {
+                html += `<tr><td class="time-slot">${time}</td>`;
+                days.forEach(day => {
+                    html += '<td>';
+                    const dayClubs = filteredClubs.filter(club => 
+                        club.day === day && club.time === time
+                    );
+                    dayClubs.forEach(club => {
+                        html += `
+                            <div class="club-item ${club.category}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
+                                <div class="club-name">${club.name}</div>
+                                <div class="club-info">Grades ${formatGrades(club.grades)}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</td>';
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody>';
+            document.getElementById('scheduleTable').innerHTML = html;
+        }
+
+        function renderListView() {
+            const filteredClubs = getFilteredClubs();
+            const sortedClubs = [...filteredClubs].sort((a, b) => a.name.localeCompare(b.name));
+            
+            let html = '';
+            sortedClubs.forEach(club => {
+                html += `
+                    <div class="club-card ${club.category}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
+                        <h3>${club.name}</h3>
+                        <div class="details">
+                            <p><strong>Category:</strong> ${club.category.charAt(0).toUpperCase() + club.category.slice(1)}</p>
+                            <p><strong>Day:</strong> ${club.day}</p>
+                            <p><strong>Time:</strong> ${club.time}</p>
+                            <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
+                            <p><strong>Instructor:</strong> ${club.instructor}</p>
+                            <p><strong>Room:</strong> ${club.room}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('clubList').innerHTML = html;
+        }
+
+        function formatGrades(grades) {
+            if (grades.length === 0) return '';
+            if (grades.length === 1) return grades[0];
+            
+            // Check if grades are consecutive
+            const sorted = [...grades].sort((a, b) => a - b);
+            let isConsecutive = true;
+            for (let i = 1; i < sorted.length; i++) {
+                if (sorted[i] !== sorted[i-1] + 1) {
+                    isConsecutive = false;
+                    break;
+                }
+            }
+            
+            if (isConsecutive) {
+                return `${sorted[0]}-${sorted[sorted.length - 1]}`;
+            } else {
+                return sorted.join(', ');
+            }
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            const scheduleView = document.getElementById('scheduleView');
+            const listView = document.getElementById('listView');
+            const buttons = document.querySelectorAll('.view-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            if (view === 'schedule') {
+                scheduleView.style.display = 'block';
+                listView.classList.remove('active');
+                buttons[0].classList.add('active');
+            } else {
+                scheduleView.style.display = 'none';
+                listView.classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        function showClubDetails(clubName) {
+            const club = clubsData.find(c => c.name === clubName);
+            if (!club) return;
+            
+            const modal = document.getElementById('clubModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalTitle.textContent = club.name;
+            modalBody.innerHTML = `
+                <p><strong>Category:</strong> ${club.category.charAt(0).toUpperCase() + club.category.slice(1)}</p>
+                <p><strong>Day:</strong> ${club.day}</p>
+                <p><strong>Time:</strong> ${club.time}</p>
+                <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
+                <p><strong>Instructor:</strong> ${club.instructor}</p>
+                <p><strong>Room:</strong> ${club.room}</p>
+                <p><strong>Description:</strong> ${club.description}</p>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('clubModal').classList.remove('active');
+        }
+
+        // Event listeners
+        document.getElementById('gradeSelect').addEventListener('change', function(e) {
+            selectedGrade = e.target.value;
+            updateStats();
+            renderSchedule();
+            renderListView();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('clubModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize on load
+        initializeSchedule();
+    </script>
+</body>
+</html>
