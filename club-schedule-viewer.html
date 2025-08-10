@@ -378,6 +378,31 @@
             font-weight: 500;
             color: #333;
         }
+
+        .day-controls {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #f1f3f5;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .day-controls .reset-btn {
+            padding: 6px 12px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .schedule-table th.day-header {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -450,6 +475,10 @@
         </div>
 
         <div class="schedule-container" id="scheduleView">
+            <div class="day-controls" id="dayControls">
+                <span id="dayTitle"></span>
+                <button class="reset-btn" id="resetWeekBtn">Back to Week View</button>
+            </div>
             <table class="schedule-table" id="scheduleTable">
                 <!-- Schedule will be generated here -->
             </table>
@@ -2271,6 +2300,7 @@
         let currentView = 'schedule';
         let selectedGrade = 'all';
         const selectedCategories = new Set();
+        let selectedDay = null; // null = week view; otherwise 'Monday'..'Friday'
 
         function toCategoryClass(category) {
             const normalized = (category || '').toLowerCase();
@@ -2311,6 +2341,7 @@
             renderSchedule();
             renderListView();
             setupLegendFiltering();
+            setupDayControls();
         }
 
         function updateStats() {
@@ -2372,18 +2403,22 @@
                 '17:45-18:45'
             ];
 
+            const visibleDays = selectedDay ? [selectedDay] : days;
+
             let html = '<thead><tr><th>Time</th>';
-            days.forEach(day => {
-                html += `<th>${day}</th>`;
+            visibleDays.forEach(day => {
+                html += `<th class="day-header" data-day="${day}">${day}</th>`;
             });
             html += '</tr></thead><tbody>';
 
             // Get unique time slots from filtered clubs
-            const uniqueTimeSlots = [...new Set(filteredClubs.map(club => club.time))].sort();
+            const uniqueTimeSlots = [...new Set(filteredClubs
+                .filter(club => !selectedDay || club.day === selectedDay)
+                .map(club => club.time))].sort();
 
             uniqueTimeSlots.forEach(time => {
                 html += `<tr><td class="time-slot">${time}</td>`;
-                days.forEach(day => {
+                visibleDays.forEach(day => {
                     html += '<td>';
                     const dayClubs = filteredClubs.filter(club =>
                         club.day === day && club.time === time
@@ -2403,6 +2438,8 @@
 
             html += '</tbody>';
             document.getElementById('scheduleTable').innerHTML = html;
+            attachDayHeaderHandlers();
+            updateDayControls();
         }
 
         function renderListView() {
@@ -2465,6 +2502,38 @@
                 scheduleView.style.display = 'none';
                 listView.classList.add('active');
                 buttons[1].classList.add('active');
+            }
+        }
+
+        function attachDayHeaderHandlers() {
+            const headers = document.querySelectorAll('#scheduleTable th.day-header');
+            headers.forEach(th => {
+                th.addEventListener('click', () => {
+                    const day = th.getAttribute('data-day');
+                    if (!day) return;
+                    selectedDay = day;
+                    renderSchedule();
+                });
+            });
+        }
+
+        function setupDayControls() {
+            const resetBtn = document.getElementById('resetWeekBtn');
+            resetBtn.addEventListener('click', () => {
+                selectedDay = null;
+                renderSchedule();
+            });
+        }
+
+        function updateDayControls() {
+            const container = document.getElementById('dayControls');
+            const title = document.getElementById('dayTitle');
+            if (selectedDay) {
+                container.style.display = 'flex';
+                title.textContent = `Viewing: ${selectedDay}`;
+            } else {
+                container.style.display = 'none';
+                title.textContent = '';
             }
         }
 
