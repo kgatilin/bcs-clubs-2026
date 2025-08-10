@@ -347,12 +347,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: border-color 0.2s, background 0.2s;
         }
 
         .legend-color {
             width: 20px;
             height: 20px;
             border-radius: 4px;
+        }
+
+        .legend-item.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
         }
 
         .stats {
@@ -409,31 +419,31 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item">
+            <div class="legend-item" data-category="dance">
                 <div class="legend-color" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);"></div>
                 <span>Dance</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="music">
                 <div class="legend-color" style="background: linear-gradient(135deg, #a8e6cf 0%, #81d4bb 100%);"></div>
                 <span>Music</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="sports">
                 <div class="legend-color" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);"></div>
                 <span>Sports</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="academic">
                 <div class="legend-color" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);"></div>
                 <span>Academic</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="arts">
                 <div class="legend-color" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);"></div>
                 <span>Arts</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="language">
                 <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);"></div>
                 <span>Language</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-category="games">
                 <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
                 <span>Games</span>
             </div>
@@ -633,7 +643,7 @@
                 "name": "Boom & Beats",
                 "category": "Music & Rhythm Clubs",
                 "day": "Monday",
-                "time": "15:15-16:15",
+                "time": "16:15-17:15",
                 "grades": [
                     3,
                     4,
@@ -647,11 +657,12 @@
                 "name": "Creative Movie Maker",
                 "category": "Arts, Crafts & Media Club",
                 "day": "Monday",
-                "time": "15:15-16:15",
+                "time": "16:15-17:15",
                 "grades": [
                     3,
                     4,
-                    5
+                    5,
+                    6
                 ],
                 "instructor": "Ms Erika Polgar",
                 "room": null,
@@ -661,7 +672,7 @@
                 "name": "Doppeldeutsch",
                 "category": "Foreign Language Clubs",
                 "day": "Monday",
-                "time": "15:15-16:15",
+                "time": "16:15-17:15",
                 "grades": [
                     3,
                     4,
@@ -676,7 +687,7 @@
                 "name": "BCS Symphoria",
                 "category": "Music & Rhythm Clubs",
                 "day": "Monday",
-                "time": "16:15-17:15",
+                "time": "08:00-08:45",
                 "grades": [
                     5,
                     6,
@@ -734,6 +745,23 @@
                 "description": "Students will build on their prior coding knowledge to start creating their own programs using the Python language. We will begin by reviewing coding concepts through Scratch or CodeCombat, and then progress to writing actual Python code to develop our own programs. This class is recommended for students who have previously used Scratch or have an introductory knowledge of Python."
             },
             {
+                "name": "Coding Secondary",
+                "category": "Science, Technology & Academic Inspiration Clubs",
+                "day": "Monday",
+                "time": "17:15-18:00",
+                "grades": [
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "instructor": "Mr Andrew Igras",
+                "room": null,
+                "description": "Students will build on their prior coding knowledge to start creating their own programs using the Python language. We will begin by reviewing coding concepts through Scratch or CodeCombat, and then progress to writing actual Python code to develop our own programs. This class is recommended for students who have previously used Scratch or have an introductory knowledge of Python."
+            },
+            {
                 "name": "Robotics",
                 "category": "Science, Technology & Academic Inspiration Clubs",
                 "day": "Monday",
@@ -756,7 +784,6 @@
                 "day": "Monday",
                 "time": "16:15-17:15",
                 "grades": [
-                    6,
                     7,
                     8,
                     9,
@@ -788,7 +815,7 @@
                 "name": "Chess 1",
                 "category": "Games, Balance & Society Clubs",
                 "day": "Monday",
-                "time": "17:15-18:00",
+                "time": "15:15-16:15",
                 "grades": [
                     1,
                     2
@@ -956,7 +983,7 @@
                 "name": "Japanese Primary",
                 "category": "Foreign Language Clubs",
                 "day": "Tuesday",
-                "time": "15:15-16:15",
+                "time": "16:15-17:15",
                 "grades": [
                     3,
                     4,
@@ -1013,7 +1040,7 @@
                 "description": "We will publish a monthly school newspaper, make videos with our own equipment, and learn about journalism and reporting. We're looking forward to organizing excursions to Deutsche Welle and ARD/ZDF in the future."
             },
             {
-                "name": "Cosmo Philharmonic",
+                "name": "Cosmo Philharmonic (2h)",
                 "category": "Music & Rhythm Clubs",
                 "day": "Tuesday",
                 "time": "16:15-17:15",
@@ -1029,7 +1056,7 @@
                 "description": "Cosmo Philharmonic is BCS’s premier string orchestra, open to advanced student musicians. Members rehearse weekly, exploring a diverse repertoire spanning from the Baroque era to contemporary works. The ensemble performs regularly both on and off campus and occasionally participates in special tours and trips. Cosmo Philharmonic frequently collaborates with other top-level ensembles, including the Jazz Ensemble, Advanced Guitars, and the BCS Community Choir."
             },
             {
-                "name": "Advanced Guitar Ensemble",
+                "name": "Advanced Guitar Ensemble (2h)",
                 "category": "Music & Rhythm Clubs",
                 "day": "Tuesday",
                 "time": "16:15-17:15",
@@ -1046,7 +1073,7 @@
                 "description": "In this club, we support and advance students’ journey with the guitar. We aim to expand their abilities by providing a space where they can discover their personal connection with the instrument and enhance their skills in a safe, non judgmental environment that fosters individuality and originality. The club also prepares for seasonal performances and encourages students to perform regularly in front of their peers, promoting confidence and stage presence."
             },
             {
-                "name": "BCS Community Choir",
+                "name": "BCS Community Choir (2h)",
                 "category": "Music & Rhythm Clubs",
                 "day": "Tuesday",
                 "time": "16:15-17:15",
@@ -1063,7 +1090,7 @@
                 "description": "The BCS Community Choir brings together students, parents, staff, and community members to make music in a welcoming and collaborative environment. Rehearsals focus on a wide range of vocal repertoire and offer opportunities for participants to grow musically while preparing for performances both at school and in the broader community. Some prior singing experience is preferred, but all enthusiastic singers are encouraged to join."
             },
             {
-                "name": "Jazz Band",
+                "name": "Jazz Band (2h)",
                 "category": "Music & Rhythm Clubs",
                 "day": "Tuesday",
                 "time": "16:15-17:15",
@@ -1080,23 +1107,10 @@
                 "description": "Advanced Jazz band including rhythm section (Drums, double bass, Piano) plus winds/brass Instruments. In addition to practicing weekly, the band is often featured at public concerts and various school events. Admission to the ensemble is pending audition/Mr. Lloyd's approval."
             },
             {
-                "name": "Coding",
-                "category": "Science, Technology & Academic Inspiration Clubs",
-                "day": "Tuesday",
-                "time": "16:15-17:15",
-                "grades": [
-                    2,
-                    3
-                ],
-                "instructor": "Mr Andrew Igras",
-                "room": null,
-                "description": "Students will explore the fundamentals of coding computer programs. We will begin the year with Hour of Code challenges, and then move on to using Scratch to understand introductory coding concepts. This class is designed for students with little to no experience with Scratch."
-            },
-            {
                 "name": "Hip Hop & Streetdance 2",
                 "category": "dance",
                 "day": "Tuesday",
-                "time": "16:45-18:15",
+                "time": "16:45-18:00",
                 "grades": [
                     5,
                     6
@@ -1256,7 +1270,7 @@
                 "description": "Step into the world of mystery, strategy, and secrets! In the Agents of Deception Club, you’ll learn the art of disguise, misdirection, and problem-solving. Together, we’ll solve puzzles, uncover hidden clues, and put your critical thinking to the test. Do you have what it takes to outsmart the competition? Join us and become a master of deception!"
             },
             {
-                "name": "Cooking 2",
+                "name": "Cooking 2 (2h)",
                 "category": "Games, Balance & Society Clubs",
                 "day": "Wednesday",
                 "time": "15:15-16:15",
@@ -1371,7 +1385,7 @@
                 "description": "Join the chess club to learn strategies, play friendly matches, compete in mini-tournaments, and receive guidance from both peers and teachers to improve your skills."
             },
             {
-                "name": "Robotics",
+                "name": "Robotics (2h)",
                 "category": "Science, Technology & Academic Inspiration Clubs",
                 "day": "Wednesday",
                 "time": "16:15-17:15",
@@ -1398,7 +1412,7 @@
                 "description": "We offer beginner courses tailored for both primary and secondary students, ensuring a strong foundation in Russian language skills. Additionally, we provide an advanced course designed for students who wish to progress further or for those who speak Russian as their home language. These courses are structured to cater to different proficiency levels, making sure every student can learn and grow at their own pace. Come explore the richness of the Russian language and culture in a supportive and dynamic environment."
             },
             {
-                "name": "Rock band 3",
+                "name": "Rock band 3 (2h)",
                 "category": "Music & Rhythm Clubs",
                 "day": "Wednesday",
                 "time": "16:15-17:15",
@@ -1663,9 +1677,7 @@
                     3,
                     4,
                     5,
-                    6,
-                    7,
-                    8
+                    6
                 ],
                 "instructor": "Chrysanthi Gerogiannaki",
                 "room": null,
@@ -1680,16 +1692,14 @@
                     3,
                     4,
                     5,
-                    6,
-                    7,
-                    8
+                    6
                 ],
                 "instructor": "German teacher",
                 "room": null,
                 "description": "This mixed-age support program is designed for primary school students in Grades 3 to 6 who have been formally diagnosed with dyslexia or are in the process of receiving a diagnosis. The focus of this specialized language offer is to strengthen reading and writing skills in German in a supportive, structured, and multisensory learning environment."
             },
             {
-                "name": "Cooking 3",
+                "name": "Cooking 3 (2h)",
                 "category": "Games, Balance & Society Clubs",
                 "day": "Thursday",
                 "time": "15:15-16:15",
@@ -2260,6 +2270,7 @@
 
         let currentView = 'schedule';
         let selectedGrade = 'all';
+        const selectedCategories = new Set();
 
         function toCategoryClass(category) {
             const normalized = (category || '').toLowerCase();
@@ -2299,6 +2310,7 @@
             updateStats();
             renderSchedule();
             renderListView();
+            setupLegendFiltering();
         }
 
         function updateStats() {
@@ -2309,11 +2321,37 @@
         }
 
         function getFilteredClubs() {
-            if (selectedGrade === 'all') {
-                return clubsData;
+            let result = clubsData;
+            // Grade filter
+            if (selectedGrade !== 'all') {
+                const gradeNum = parseInt(selectedGrade);
+                result = result.filter(club => club.grades.includes(gradeNum));
             }
-            const gradeNum = parseInt(selectedGrade);
-            return clubsData.filter(club => club.grades.includes(gradeNum));
+            // Category filter (multi-select)
+            if (selectedCategories.size > 0) {
+                result = result.filter(club => selectedCategories.has(toCategoryClass(club.category)));
+            }
+            return result;
+        }
+
+        function setupLegendFiltering() {
+            const legendItems = document.querySelectorAll('.legend-item');
+            legendItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const category = item.getAttribute('data-category');
+                    if (!category) return;
+                    if (selectedCategories.has(category)) {
+                        selectedCategories.delete(category);
+                        item.classList.remove('active');
+                    } else {
+                        selectedCategories.add(category);
+                        item.classList.add('active');
+                    }
+                    updateStats();
+                    renderSchedule();
+                    renderListView();
+                });
+            });
         }
 
         function renderSchedule() {
