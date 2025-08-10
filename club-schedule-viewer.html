@@ -2508,7 +2508,7 @@
                             <p><strong>Time:</strong> ${club.time}</p>
                             <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
                             <p><strong>Instructor:</strong> ${club.instructor}</p>
-                            <p><strong>Room:</strong> ${club.room}</p>
+                            <p><strong>Room:</strong> ${valueOrDefault(club.room, 'TBA')}</p>
                         </div>
                     </div>
                 `;
