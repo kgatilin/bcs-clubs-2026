@@ -353,25 +353,33 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            padding: 6px 10px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            transition: border-color 0.2s, background 0.2s;
+            padding: 6px 12px;
+            border: 1px solid #e3e7ef;
+            border-radius: 999px;
+            background: #ffffff;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.05s ease-in-out;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
         .legend-color {
             width: 20px;
             height: 20px;
             border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.06);
         }
 
         .legend-item.active {
             border-color: #667eea;
             background: rgba(102, 126, 234, 0.08);
+            box-shadow: 0 1px 4px rgba(102,126,234,0.15);
         }
 
         .legend-item:hover span {
             text-decoration: underline;
+        }
+
+        .legend-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .hint {
@@ -419,10 +427,18 @@
 
         .schedule-table th.day-header {
             cursor: pointer;
+            transition: background 0.15s ease, box-shadow 0.15s ease;
         }
 
         .schedule-table th.day-header:hover {
             text-decoration: underline;
+            background: #5a6ded;
+            box-shadow: inset 0 -3px 0 rgba(255,255,255,0.4);
+        }
+
+        .schedule-table th.day-header.active {
+            background: #5566dc;
+            box-shadow: inset 0 -3px 0 rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -2562,6 +2578,14 @@
                 container.style.display = 'none';
                 title.textContent = '';
             }
+            // Toggle active header style
+            document.querySelectorAll('#scheduleTable th.day-header').forEach(th => {
+                if (selectedDay && th.getAttribute('data-day') === selectedDay) {
+                    th.classList.add('active');
+                } else {
+                    th.classList.remove('active');
+                }
+            });
         }
 
         function showClubDetails(clubName) {
