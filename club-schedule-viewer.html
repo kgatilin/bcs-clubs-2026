@@ -448,7 +448,11 @@
             cursor: not-allowed;
         }
 
-        .day-controls .right-group { display: flex; align-items: center; gap: 8px; }
+        .day-controls .right-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .schedule-table th.day-header {
             cursor: pointer;
@@ -2416,6 +2420,7 @@
             renderListView();
             setupLegendFiltering();
             setupDayControls();
+            setupKeyboardNavigation();
         }
 
         function updateStats() {
@@ -2639,6 +2644,21 @@
             if (nextIdx < 0 || nextIdx >= days.length) return;
             selectedDay = days[nextIdx];
             renderSchedule();
+        }
+
+        function setupKeyboardNavigation() {
+            window.addEventListener('keydown', (event) => {
+                if (!selectedDay) return;
+                const activeTag = document.activeElement && document.activeElement.tagName;
+                if (['INPUT', 'SELECT', 'TEXTAREA'].includes(activeTag)) return;
+                if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    moveDay(-1);
+                } else if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    moveDay(1);
+                }
+            });
         }
 
         function showClubDetails(clubName) {
