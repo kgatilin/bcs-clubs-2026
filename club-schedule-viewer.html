@@ -155,31 +155,38 @@
             border-color: #667eea;
         }
 
-        .club-item.dance, .club-card.dance {
+        .club-item.dance,
+        .club-card.dance {
             background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
         }
 
-        .club-item.music, .club-card.music {
+        .club-item.music,
+        .club-card.music {
             background: linear-gradient(135deg, #a8e6cf 0%, #81d4bb 100%);
         }
 
-        .club-item.sports, .club-card.sports {
+        .club-item.sports,
+        .club-card.sports {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
         }
 
-        .club-item.academic, .club-card.academic {
+        .club-item.academic,
+        .club-card.academic {
             background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
         }
 
-        .club-item.arts, .club-card.arts {
+        .club-item.arts,
+        .club-card.arts {
             background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
         }
 
-        .club-item.language, .club-card.language {
+        .club-item.language,
+        .club-card.language {
             background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
         }
 
-        .club-item.games, .club-card.games {
+        .club-item.games,
+        .club-card.games {
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
@@ -1508,11 +1515,11 @@
                 "description": "We offer beginner courses tailored for both primary and secondary students, ensuring a strong foundation in Russian language skills. Additionally, we provide an advanced course designed for students who wish to progress further or for those who speak Russian as their home language. These courses are structured to cater to different proficiency levels, making sure every student can learn and grow at their own pace. Come explore the richness of the Russian language and culture in a supportive and dynamic environment."
             },
             {
-                "name": "Performance Class",
+                "name": "Performance Class Probe",
                 "category": "dance",
                 "day": "Wednesday",
                 "time": "18:00-19:00",
-                "grades": [],
+                "grades": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 "instructor": "Anita S. Kreft",
                 "room": "Dance Hall (204)",
                 "description": "The learners are introduced to different dance styles such as classical dance, jazz & street dance and modern dance. Given choreographies and own pieces are developed. The aim is, among other things, to present the examination papers of the IB Dance students and the Abitur Additional Dance Course. To become a member of the Performance Class, students must attend Performance Class training twice a week. Auditions are required for admission!"
@@ -2012,10 +2019,10 @@
             },
             {
                 "name": "Student Council",
-                "category": null,
+                "category": "Other",
                 "day": "Friday",
                 "time": "08:00-08:45",
-                "grades": [],
+                "grades": [1, 2, 3, 4, 5],
                 "instructor": "Hamza Önal",
                 "room": null,
                 "description": null
@@ -2282,6 +2289,12 @@
             }
         }
 
+        function valueOrDefault(value, fallback) {
+            if (value === null || value === undefined) return fallback;
+            const str = String(value).trim();
+            return str.length === 0 || str.toLowerCase() === 'null' ? fallback : value;
+        }
+
         function initializeSchedule() {
             updateStats();
             renderSchedule();
@@ -2432,8 +2445,8 @@
                 <p><strong>Time:</strong> ${club.time}</p>
                 <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
                 <p><strong>Instructor:</strong> ${club.instructor}</p>
-                <p><strong>Room:</strong> ${club.room}</p>
-                <p><strong>Description:</strong> ${club.description}</p>
+                <p><strong>Room:</strong> ${valueOrDefault(club.room, 'TBA')}</p>
+                <p><strong>Description:</strong> ${valueOrDefault(club.description, 'No description provided')}</p>
             `;
 
             modal.classList.add('active');
