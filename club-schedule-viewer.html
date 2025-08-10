@@ -13,7 +13,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             overflow-x: hidden;
         }
 
@@ -29,7 +30,7 @@
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 30px 30px 30px 30px;
+            padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
@@ -110,11 +111,10 @@
         .schedule-container {
             overflow-x: auto;
             margin-bottom: 20px;
-            padding-bottom: 2px; /* avoid 1px overflow due to sticky header shadows */
         }
 
         .schedule-table {
-            width: 100%;
+            width: calc(100% - 1px);
             border-collapse: collapse;
             min-width: 900px;
             table-layout: fixed;
@@ -128,7 +128,7 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
         }
 
         /* Fixed column widths */
@@ -137,7 +137,7 @@
         }
 
         .schedule-table col.day-col {
-            width: 240px;
+            width: calc((100% - 140px) / 5);
         }
 
         .schedule-table td {
