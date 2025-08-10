@@ -434,6 +434,22 @@
             cursor: pointer;
         }
 
+        .day-controls .nav-btn {
+            padding: 6px 10px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #3949ab;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .day-controls .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .day-controls .right-group { display: flex; align-items: center; gap: 8px; }
+
         .schedule-table th.day-header {
             cursor: pointer;
             transition: background 0.15s ease, box-shadow 0.15s ease;
@@ -527,8 +543,14 @@
 
         <div class="schedule-container" id="scheduleView">
             <div class="day-controls" id="dayControls">
+                <div class="left-group">
+                    <button class="nav-btn" id="prevDayBtn">Previous Day</button>
+                </div>
                 <span id="dayTitle"></span>
-                <button class="reset-btn" id="resetWeekBtn">Back to Week View</button>
+                <div class="right-group">
+                    <button class="nav-btn" id="nextDayBtn">Next Day</button>
+                    <button class="reset-btn" id="resetWeekBtn">Back to Week View</button>
+                </div>
             </div>
             <table class="schedule-table" id="scheduleTable">
                 <!-- Schedule will be generated here -->
@@ -2575,17 +2597,29 @@
                 selectedDay = null;
                 renderSchedule();
             });
+            const prevBtn = document.getElementById('prevDayBtn');
+            const nextBtn = document.getElementById('nextDayBtn');
+            prevBtn.addEventListener('click', () => moveDay(-1));
+            nextBtn.addEventListener('click', () => moveDay(1));
         }
 
         function updateDayControls() {
             const container = document.getElementById('dayControls');
             const title = document.getElementById('dayTitle');
+            const prevBtn = document.getElementById('prevDayBtn');
+            const nextBtn = document.getElementById('nextDayBtn');
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             if (selectedDay) {
                 container.style.display = 'flex';
                 title.textContent = `Viewing: ${selectedDay}`;
+                const idx = days.indexOf(selectedDay);
+                prevBtn.disabled = idx <= 0;
+                nextBtn.disabled = idx >= days.length - 1;
             } else {
                 container.style.display = 'none';
                 title.textContent = '';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
             }
             // Toggle active header style
             document.querySelectorAll('#scheduleTable th.day-header').forEach(th => {
@@ -2595,6 +2629,16 @@
                     th.classList.remove('active');
                 }
             });
+        }
+
+        function moveDay(direction) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            if (!selectedDay) return;
+            const idx = days.indexOf(selectedDay);
+            const nextIdx = idx + direction;
+            if (nextIdx < 0 || nextIdx >= days.length) return;
+            selectedDay = days[nextIdx];
+            renderSchedule();
         }
 
         function showClubDetails(clubName) {
