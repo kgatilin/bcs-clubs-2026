@@ -190,6 +190,11 @@
             background: #F0F4C3;
         }
 
+        .club-item.other,
+        .club-card.other {
+            background: #CFD8DC;
+        }
+
         .club-name {
             font-weight: bold;
             color: #333;
@@ -471,6 +476,10 @@
             <div class="legend-item" data-category="games">
                 <div class="legend-color" style="background: #F0F4C3;"></div>
                 <span>Games</span>
+            </div>
+            <div class="legend-item" data-category="other">
+                <div class="legend-color" style="background: #CFD8DC;"></div>
+                <span>Other</span>
             </div>
         </div>
 
@@ -2312,7 +2321,7 @@
             if (normalized.includes('language')) return 'language';
             if (normalized.includes('game') || normalized.includes('balance') || normalized.includes('society')) return 'games';
             // Already canonical simple categories like 'dance'
-            if (['dance', 'music', 'sports', 'academic', 'arts', 'language', 'games'].includes(normalized)) return normalized;
+            if (['dance', 'music', 'sports', 'academic', 'arts', 'language', 'games', 'other'].includes(normalized)) return normalized;
             return '';
         }
 
@@ -2326,6 +2335,7 @@
                 case 'arts': return 'Arts';
                 case 'language': return 'Language';
                 case 'games': return 'Games';
+                case 'other': return 'Other';
                 default: return category || '';
             }
         }
