@@ -155,31 +155,31 @@
             border-color: #667eea;
         }
 
-        .club-item.dance {
+        .club-item.dance, .club-card.dance {
             background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
         }
 
-        .club-item.music {
+        .club-item.music, .club-card.music {
             background: linear-gradient(135deg, #a8e6cf 0%, #81d4bb 100%);
         }
 
-        .club-item.sports {
+        .club-item.sports, .club-card.sports {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
         }
 
-        .club-item.academic {
+        .club-item.academic, .club-card.academic {
             background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
         }
 
-        .club-item.arts {
+        .club-item.arts, .club-card.arts {
             background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
         }
 
-        .club-item.language {
+        .club-item.language, .club-card.language {
             background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
         }
 
-        .club-item.games {
+        .club-item.games, .club-card.games {
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
@@ -2254,6 +2254,34 @@
         let currentView = 'schedule';
         let selectedGrade = 'all';
 
+        function toCategoryClass(category) {
+            const normalized = (category || '').toLowerCase();
+            if (normalized.includes('dance')) return 'dance';
+            if (normalized.includes('music')) return 'music';
+            if (normalized.includes('sport')) return 'sports';
+            if (normalized.includes('science') || normalized.includes('technology') || normalized.includes('academic')) return 'academic';
+            if (normalized.includes('art')) return 'arts';
+            if (normalized.includes('language')) return 'language';
+            if (normalized.includes('game') || normalized.includes('balance') || normalized.includes('society')) return 'games';
+            // Already canonical simple categories like 'dance'
+            if (['dance', 'music', 'sports', 'academic', 'arts', 'language', 'games'].includes(normalized)) return normalized;
+            return '';
+        }
+
+        function toCategoryLabel(category) {
+            const cls = toCategoryClass(category);
+            switch (cls) {
+                case 'dance': return 'Dance';
+                case 'music': return 'Music';
+                case 'sports': return 'Sports';
+                case 'academic': return 'Academic';
+                case 'arts': return 'Arts';
+                case 'language': return 'Language';
+                case 'games': return 'Games';
+                default: return category || '';
+            }
+        }
+
         function initializeSchedule() {
             updateStats();
             renderSchedule();
@@ -2311,7 +2339,7 @@
                     );
                     dayClubs.forEach(club => {
                         html += `
-                            <div class="club-item ${club.category}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
+                            <div class="club-item ${toCategoryClass(club.category)}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
                                 <div class="club-name">${club.name}</div>
                                 <div class="club-info">Grades ${formatGrades(club.grades)}</div>
                             </div>
@@ -2333,10 +2361,10 @@
             let html = '';
             sortedClubs.forEach(club => {
                 html += `
-                    <div class="club-card ${club.category}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
+                    <div class="club-card ${toCategoryClass(club.category)}" onclick="showClubDetails('${club.name.replace(/'/g, "\\'")}')">
                         <h3>${club.name}</h3>
                         <div class="details">
-                            <p><strong>Category:</strong> ${club.category.charAt(0).toUpperCase() + club.category.slice(1)}</p>
+                            <p><strong>Category:</strong> ${toCategoryLabel(club.category)}</p>
                             <p><strong>Day:</strong> ${club.day}</p>
                             <p><strong>Time:</strong> ${club.time}</p>
                             <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
@@ -2399,7 +2427,7 @@
 
             modalTitle.textContent = club.name;
             modalBody.innerHTML = `
-                <p><strong>Category:</strong> ${club.category.charAt(0).toUpperCase() + club.category.slice(1)}</p>
+                <p><strong>Category:</strong> ${toCategoryLabel(club.category)}</p>
                 <p><strong>Day:</strong> ${club.day}</p>
                 <p><strong>Time:</strong> ${club.time}</p>
                 <p><strong>Grades:</strong> ${formatGrades(club.grades)}</p>
